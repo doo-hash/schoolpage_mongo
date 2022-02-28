@@ -11,7 +11,7 @@ public interface IStudentService {
 	public List<Student> findAll();
 
 	public int usercount();
-	boolean existsByStudentId(String studentId);
+	public boolean existsByStudentId(String studentId);
 
 	public Student findByStudentId(String designation);
 

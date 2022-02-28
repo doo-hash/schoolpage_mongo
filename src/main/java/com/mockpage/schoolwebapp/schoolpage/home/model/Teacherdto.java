@@ -1,6 +1,5 @@
 package com.mockpage.schoolwebapp.schoolpage.home.model;
 
-import javax.persistence.Lob;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -36,19 +35,15 @@ public class Teacherdto {
 	@Size(min = 2, message = "Designation cannot be less than 2 characters.")
 	private String designation;
 	
-	@Lob
 	@NotBlank(message = "Education details cannot be empty")
 	@Size(min=10,message = "Education details cannot be less than 10 characters")
 	private String education;
 	
-	@Lob
 	@NotBlank(message = "Work experience details cannot be empty")
 	@Size(min=10,message = "work experience details cannot be less than 10 characters")
 	private String work_experience;
 	
 	public Teacherdto() {}
-
-	
 	
 	public Teacherdto(
 			@Pattern(regexp = "^[a-zA-Z ]{2,40}", message = "Must contain only letters.") @NotBlank(message = "Firstname cannot be empty") @Size(min = 2, message = "Firstname must be more than 2 characters.") String firstName,

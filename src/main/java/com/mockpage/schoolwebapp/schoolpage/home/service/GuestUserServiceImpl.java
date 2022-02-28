@@ -2,9 +2,11 @@ package com.mockpage.schoolwebapp.schoolpage.home.service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mockpage.schoolwebapp.schoolpage.home.model.GuestUser;
+import com.mockpage.schoolwebapp.schoolpage.home.model.Role;
 import com.mockpage.schoolwebapp.schoolpage.home.model.SchoolUser;
 import com.mockpage.schoolwebapp.schoolpage.home.repository.GuestUserRepository;
 import com.mockpage.schoolwebapp.schoolpage.home.repository.SchoolUserRepository;
@@ -12,20 +14,44 @@ import com.mockpage.schoolwebapp.schoolpage.home.repository.SchoolUserRepository
 @Service
 public class GuestUserServiceImpl implements IGuestUserService {
 
+	@Autowired
 	private GuestUserRepository guestuserRepo;
+	@Autowired
 	private SchoolUserRepository userRepo;
+	@Autowired
+	private DbSequenceService seqservice;
 	
-	public GuestUserServiceImpl(GuestUserRepository guestuserRepo, SchoolUserRepository userRepo) {
+	/*
+	 * public GuestUserServiceImpl(GuestUserRepository guestuserRepo,
+	 * SchoolUserRepository userRepo) { super(); this.guestuserRepo = guestuserRepo;
+	 * this.userRepo = userRepo; }
+	 */
+
+	
+
+	public GuestUserServiceImpl() {
 		super();
-		this.guestuserRepo = guestuserRepo;
-		this.userRepo = userRepo;
+		// TODO Auto-generated constructor stub
 	}
+
+
+
+	/*
+	 * public GuestUserServiceImpl(GuestUserRepository guestuserRepo,
+	 * SchoolUserRepository userRepo, DbSequenceService seqservice) { super();
+	 * this.guestuserRepo = guestuserRepo; this.userRepo = userRepo; this.seqservice
+	 * = seqservice; }
+	 */
+
 
 
 	@Override
 	public List<GuestUser> findAll() {
-		List<GuestUser> findAllGuestUsers = guestuserRepo.findAll();
-		return findAllGuestUsers;
+		if(guestuserRepo != null) {
+			List<GuestUser> findAllGuestUsers = guestuserRepo.findAll();
+			return findAllGuestUsers;
+		}
+		return null;
 	}
 
 
@@ -33,8 +59,12 @@ public class GuestUserServiceImpl implements IGuestUserService {
 	public void update(GuestUser guestuserupdate) {
 		SchoolUser user = userRepo.findByUserid(guestuserupdate.getUserId());
 		GuestUser guestuser = guestuserRepo.findByUserId(guestuserupdate.getUserId());
-		
+		String role = null;
+		for (Role role2 : user.getRoles()) {
+			role = role2.getRolename();
+		}
 		if(guestuser == null) {
+			guestuserupdate.setId(seqservice.getnextseq(GuestUser.SEQ_KEY));
 			guestuserRepo.save(guestuserupdate);
 		}
 		else {
@@ -46,12 +76,17 @@ public class GuestUserServiceImpl implements IGuestUserService {
 			guestuser.setProfession(guestuserupdate.getProfession());
 			guestuser.setEducation(guestuserupdate.getEducation());
 			guestuser.setDescription(guestuserupdate.getDescription());
+			guestuser.setDelete(guestuserupdate.isDelete());
+			guestuser.setInactive(guestuserupdate.isInactive());
+			guestuser.setRole(role);
 			guestuserRepo.save(guestuser);
 		}
 		
 		user.setDesignation(guestuserupdate.getProfession());
 		user.setEmail(guestuserupdate.getEmail());
 		user.setPhonenumber(guestuserupdate.getPhonenumber());
+		user.setDelete(guestuserupdate.isDelete());
+		user.setInactive(guestuserupdate.isInactive());
 		userRepo.save(user);
 	}
 
@@ -86,6 +121,7 @@ public class GuestUserServiceImpl implements IGuestUserService {
 
 	@Override
 	public GuestUser save(GuestUser guestUser) {
+		guestUser.setId(seqservice.getnextseq(GuestUser.SEQ_KEY));
 		guestuserRepo.save(guestUser);
 		return guestUser;
 	}

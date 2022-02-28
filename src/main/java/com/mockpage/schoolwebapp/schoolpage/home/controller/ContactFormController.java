@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.mockpage.schoolwebapp.schoolpage.home.model.Feedback;
 import com.mockpage.schoolwebapp.schoolpage.home.repository.FeedbackRepository;
+import com.mockpage.schoolwebapp.schoolpage.home.service.DbSequenceService;
 
 @Controller
 @RequestMapping("/home")
@@ -20,6 +21,9 @@ public class ContactFormController {
 
 	@Autowired
 	private FeedbackRepository feedbackrepo;
+	
+	@Autowired
+	private DbSequenceService seqservice;
 	
 	@GetMapping("/contactus")
 	public String contactus(Model model) {
@@ -37,6 +41,7 @@ public class ContactFormController {
 			System.out.println("errors");
 			return "contactus";
 		}
+		feedback.setId(seqservice.getnextseq(Feedback.SEQ_KEY));
 		feedbackrepo.save(feedback);
 
 		return "redirect:/home/contactus?success";

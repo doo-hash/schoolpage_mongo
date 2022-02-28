@@ -1,29 +1,26 @@
 package com.mockpage.schoolwebapp.schoolpage.home.model;
 
 import java.util.Collection;
+import java.util.Set;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-@Entity
-@Table(name = "schoolUsers")
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "school_users")
 public class  SchoolUser{
 
+	@Transient
+	public static final String SEQ_KEY = "user_seq";
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private long id;
 	
 	@NotBlank(message="First Name cannot be empty.")
 	@Pattern(regexp = "^[a-zA-Z\s]{2,50}", message = "Must contain only letters.")
@@ -60,13 +57,7 @@ public class  SchoolUser{
 	@Size(min = 8, message = "Password cannot be less than 8 characters.")
 	private String password;
 	
-	  @ManyToMany(fetch = FetchType.EAGER)
-	  
-	  @JoinTable( name = "userroles", joinColumns = @JoinColumn(name =
-	  "userid", referencedColumnName = "id"), inverseJoinColumns
-	  = @JoinColumn(name = "roleid", referencedColumnName = "id") )
-	 
-	private Collection<Role> roles;
+	private Set<Role> roles;
 	
 	@AssertTrue(message = "Please check before you proceed.")
 	private boolean checkterms;
@@ -75,6 +66,28 @@ public class  SchoolUser{
 	private boolean deleteuser;
 
 	
+	public SchoolUser(long id,
+			@NotBlank(message = "First Name cannot be empty.") @Pattern(regexp = "^[a-zA-Z ]{2,50}", message = "Must contain only letters.") @Size(min = 2, message = "First Name cannot be less than 2 characters.") String firstname,
+			@NotBlank(message = "Last Name cannot be empty.") @Pattern(regexp = "^[a-zA-Z ]{2,50}", message = "Must contain only letters.") @Size(min = 2, message = "Last Name cannot be less than 2 characters.") String lastname,
+			@NotBlank(message = "Email cannot be empty.") @Pattern(regexp = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$", message = "Invalid email address.") @Email String email,
+			@NotBlank(message = "Phone number cannot be empty.") @Pattern(regexp = "^[0-9-]{12}", message = "Must contain only numbers.") @Size(min = 10, message = "Phone number cannot be less than 10 characters.") String phonenumber,
+			@NotBlank(message = "User id cannot be empty.") @Pattern(regexp = "^[a-zA-Z0-9-_]{2,50}", message = "Invalid characters.") @Size(min = 3, message = "User id cannot be less than 3 characters.") String userid,
+			@NotBlank(message = "Cannot be empty.") @Pattern(regexp = "^[a-zA-Z0-9 ]{2,50}", message = "Invalid characters.") @Size(min = 3, message = "Cannot be less than 3 characters.") String designation,
+			@NotBlank(message = "Password cannot be empty.") @Size(min = 8, message = "Password cannot be less than 8 characters.") String password,
+			Set<Role> roles, @AssertTrue(message = "Please check before you proceed.") boolean checkterms) {
+		super();
+		this.id = id;
+		this.firstname = firstname;
+		this.lastname = lastname;
+		this.email = email;
+		this.phonenumber = phonenumber;
+		this.userid = userid;
+		this.designation = designation;
+		this.password = password;
+		this.roles = roles;
+		this.checkterms = checkterms;
+	}
+
 	public SchoolUser(
 			@NotBlank(message = "First Name cannot be empty.") @Pattern(regexp = "^[a-zA-Z ]{2,50}", message = "Must contain only letters.") @Size(min = 2, message = "First Name cannot be less than 2 characters.") String firstname,
 			@NotBlank(message = "Last Name cannot be empty.") @Pattern(regexp = "^[a-zA-Z ]{2,50}", message = "Must contain only letters.") @Size(min = 2, message = "Last Name cannot be less than 2 characters.") String lastname,
@@ -83,7 +96,7 @@ public class  SchoolUser{
 			@NotBlank(message = "User id cannot be empty.") @Pattern(regexp = "^[a-zA-Z0-9-_]{2,50}", message = "Invalid characters.") @Size(min = 3, message = "User id cannot be less than 3 characters.") String userid,
 			@NotBlank(message = "Cannot be empty.") @Pattern(regexp = "^[a-zA-Z0-9 ]{2,50}", message = "Invalid characters.") @Size(min = 3, message = "Cannot be less than 3 characters.") String designation,
 			@NotBlank(message = "Password cannot be empty.") @Size(min = 8, message = "Password cannot be less than 8 characters.") String password,
-			Collection<Role> roles, @AssertTrue(message = "Please check before you proceed.") boolean checkterms,
+			Set<Role> roles, @AssertTrue(message = "Please check before you proceed.") boolean checkterms,
 			boolean inactive, boolean deleteuser) {
 		super();
 		this.firstname = firstname;
@@ -107,7 +120,7 @@ public class  SchoolUser{
 			@NotBlank(message = "User id cannot be empty.") @Pattern(regexp = "^[a-zA-Z0-9-_]{2,50}", message = "Invalid characters.") @Size(min = 3, message = "User id cannot be less than 3 characters.") String userid,
 			String designation,
 			@NotBlank(message = "Password cannot be empty.") @Size(min = 8, message = "Password cannot be less than 8 characters.") String password,
-			Collection<Role> roles, @AssertTrue(message = "Please check before you proceed.") boolean checkterms) {
+			Set<Role> roles, @AssertTrue(message = "Please check before you proceed.") boolean checkterms) {
 		super();
 		this.firstname = firstname;
 		this.lastname = lastname;
@@ -120,7 +133,7 @@ public class  SchoolUser{
 		this.checkterms = checkterms;
 	}
 
-	public Long getId() {
+	public long getId() {
 		return id;
 	}
 
@@ -184,12 +197,12 @@ public class  SchoolUser{
 		this.password = password;
 	}
 
-	public Collection<Role> getRoles() {
+	public Set<Role> getRoles() {
 		return roles;
 	}
 
-	public void setRoles(Collection<Role> roles) {
-		this.roles = roles;
+	public Set<Role> setRoles(Set<Role> roles) {
+		return this.roles = roles;
 	}
 
 	public boolean isCheckterms() {

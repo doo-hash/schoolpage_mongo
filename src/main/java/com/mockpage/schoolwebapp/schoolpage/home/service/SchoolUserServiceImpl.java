@@ -1,7 +1,12 @@
 package com.mockpage.schoolwebapp.schoolpage.home.service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,18 +26,27 @@ public class SchoolUserServiceImpl implements ISchoolUserService {
 
 	@Autowired
 	private SchoolUserRepository userRepo;
+
+	@Autowired
+	private DbSequenceService seqservice;
 	
 	private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 	@Override
 	public SchoolUser saveSchoolUser(SchoolUser newuser) {
-		System.out.println(newuser.toString());
+		
 		String psd = passwordEncoder.encode(newuser.getPassword());
-		SchoolUser user = new SchoolUser(newuser.getFirstname(),newuser.getLastname(),
+		Set<Role> roles = null;
+		for (Role role : newuser.getRoles()) {
+			roles = newuser.setRoles(new HashSet<>(Arrays.asList(role)));
+		}
+		SchoolUser user = new SchoolUser(seqservice.getnextseq(SchoolUser.SEQ_KEY),
+				newuser.getFirstname(),newuser.getLastname(),
 				newuser.getEmail(),newuser.getPhonenumber(),
 				newuser.getUserid(),newuser.getDesignation(),
-				psd,newuser.getRoles(),
+				psd,roles,
 				newuser.isCheckterms());
+		
 		userRepo.save(user);
 		return user;
 	}
@@ -105,6 +119,7 @@ public class SchoolUserServiceImpl implements ISchoolUserService {
 
 	@Override
 	public List<SchoolUser> findAllUsersByDesignation(String designation) {
+		
 		List<SchoolUser> allusers = userRepo.findAllByDesignation(designation);
 		return allusers;
 	}
@@ -119,23 +134,29 @@ public class SchoolUserServiceImpl implements ISchoolUserService {
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		SchoolUser userbyid = userRepo.findByUserid(username);
 		SchoolUser userbyemail = userRepo.findByEmail(username);
-		
 			if(userbyid != null) {
 				if(!(userbyid.isDelete() || userbyid.isInactive())) {
-					return new org.springframework.security.core.userdetails.User(userbyid.getUserid(), userbyid.getPassword(), mapRolesToAuthorities(userbyid.getRoles()));
+					List<GrantedAuthority> authorities = getUserAuthorities(userbyid.getRoles());
+					return new org.springframework.security.core.userdetails.User(userbyid.getUserid(), userbyid.getPassword(), authorities);
 				}
 			}
 			
 			if(userbyemail != null) {
 				if(!(userbyemail.isDelete() || userbyemail.isInactive())) {
-					return new org.springframework.security.core.userdetails.User(userbyemail.getEmail(), userbyemail.getPassword(), mapRolesToAuthorities(userbyemail.getRoles()));
+					List<GrantedAuthority> authorities = getUserAuthorities(userbyemail.getRoles());
+					return new org.springframework.security.core.userdetails.User(userbyemail.getEmail(), userbyemail.getPassword(), authorities);
 				}
 			}
 			throw new UsernameNotFoundException("Invalid Username or password");
 	}
 	
-	private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles){
-		return roles.stream().map(role -> new SimpleGrantedAuthority(role.getRolename())).collect(Collectors.toList());
+	private List<GrantedAuthority> getUserAuthorities(Set<Role> roles){
+		Set<GrantedAuthority> authorities = new HashSet<>();
+		for (Role role : roles) {
+			authorities.add(new SimpleGrantedAuthority(role.getRolename()));
+		}
+		List<GrantedAuthority> grantedAuthorities = new ArrayList<>(authorities);
+		return grantedAuthorities;
 	}
 
 	public boolean existsByPhoneNumber(String phonenumber) {

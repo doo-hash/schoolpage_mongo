@@ -2,8 +2,10 @@ package com.mockpage.schoolwebapp.schoolpage.home.service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.mockpage.schoolwebapp.schoolpage.home.model.Role;
 import com.mockpage.schoolwebapp.schoolpage.home.model.SchoolUser;
 import com.mockpage.schoolwebapp.schoolpage.home.model.Teacher;
 import com.mockpage.schoolwebapp.schoolpage.home.repository.SchoolUserRepository;
@@ -12,20 +14,35 @@ import com.mockpage.schoolwebapp.schoolpage.home.repository.UserTeacherRepositor
 @Service
 public class TeacherServiceImpl implements ITeacherService {
 
+	@Autowired
 	private UserTeacherRepository teacherRepo;
+	@Autowired
 	private SchoolUserRepository userRepo;
+	@Autowired
+	private DbSequenceService seqservice;
 	
-	public TeacherServiceImpl(UserTeacherRepository teacherRepo, SchoolUserRepository userRepo) {
+	/*
+	 * public TeacherServiceImpl(UserTeacherRepository teacherRepo,
+	 * SchoolUserRepository userRepo,DbSequenceService seqservice) { super();
+	 * this.teacherRepo = teacherRepo; this.userRepo = userRepo; this.seqservice =
+	 * seqservice; }
+	 */
+
+
+	public TeacherServiceImpl() {
 		super();
-		this.teacherRepo = teacherRepo;
-		this.userRepo = userRepo;
+		// TODO Auto-generated constructor stub
 	}
 
 
 	@Override
 	public List<Teacher> findAll() {
-		List<Teacher> findAllTeachers = teacherRepo.findAll();
-		return findAllTeachers;
+		
+		if(teacherRepo != null) {
+			List<Teacher> findAllTeachers = teacherRepo.findAll();		
+			return findAllTeachers;
+		}
+		return null;
 	}
 
 
@@ -34,9 +51,13 @@ public class TeacherServiceImpl implements ITeacherService {
 		
 		SchoolUser user = userRepo.findByUserid(teacherupdate.getTeacherId());
 		Teacher teacher = teacherRepo.findByTeacherId(teacherupdate.getTeacherId());
-		
+		String role = null;
+		for (Role role2 : user.getRoles()) {
+			role = role2.getRolename();
+		}
 		
 		if(teacher == null) {
+			teacherupdate.setId(seqservice.getnextseq(Teacher.SEQ_KEY));
 			teacherRepo.save(teacherupdate);
 		}
 		else {	
@@ -46,15 +67,19 @@ public class TeacherServiceImpl implements ITeacherService {
 			teacher.setEmail(teacherupdate.getEmail());
 			teacher.setTeacherId(teacherupdate.getTeacherId());
 			teacher.setPassword(teacherupdate.getPassword());
-			teacher.setRole(teacherupdate.getRole());
+			teacher.setRole(role);
 			teacher.setDesignation(teacherupdate.getDesignation());
 			teacher.setEducation(teacherupdate.getEducation());
 			teacher.setWork_experience(teacherupdate.getWork_experience());
+			teacher.setDelete(teacherupdate.isDelete());
+			teacher.setInactive(teacherupdate.isInactive());
 			teacherRepo.save(teacher);
 		}
 		user.setEmail(teacherupdate.getEmail());
 		user.setPhonenumber(teacherupdate.getPhonenumber());
 		user.setDesignation(teacherupdate.getDesignation());
+		user.setDelete(teacherupdate.isDelete());
+		user.setInactive(teacherupdate.isInactive());
 		userRepo.save(user);
 		}
 
@@ -102,6 +127,7 @@ public class TeacherServiceImpl implements ITeacherService {
 
 	@Override
 	public Teacher save(Teacher teacher) {
+		teacher.setId(seqservice.getnextseq(Teacher.SEQ_KEY));
 		teacherRepo.save(teacher);
 		return teacher;
 	}

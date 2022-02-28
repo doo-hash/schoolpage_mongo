@@ -1,22 +1,22 @@
 package com.mockpage.schoolwebapp.schoolpage.home.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-@Entity
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "teacher")
 public class Teacher {
 
+	@Transient
+	public static final String SEQ_KEY = "tchr_seq";
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private long id;
 	
 	@Pattern(regexp = "^[a-zA-Z\s]{2,40}",message="Must contain only letters.")
 	@NotBlank(message = "Firstname cannot be empty")
@@ -52,12 +52,10 @@ public class Teacher {
 	@Size(min = 2, message = "Designation cannot be less than 2 characters.")
 	private String designation;
 	
-	@Lob
 	@NotBlank(message = "Education details cannot be empty")
 	@Size(min=10,message = "Education details cannot be less than 10 characters")
 	private String education;
 	
-	@Lob
 	@NotBlank(message = "Work experience details cannot be empty")
 	@Size(min=10,message = "work experience details cannot be less than 10 characters")
 	private String work_experience;
@@ -126,7 +124,7 @@ public class Teacher {
 				+ work_experience + "]";
 	}
 
-	public Long getId() {
+	public long getId() {
 		return id;
 	}
 

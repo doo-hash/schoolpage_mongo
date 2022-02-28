@@ -1,20 +1,13 @@
 package com.mockpage.schoolwebapp.schoolpage.home.model;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-public class  Admindto{
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+public class  Admindto{
 	
 	@Pattern(regexp = "^[a-zA-Z\s]{2,40}",message="Must contain only letters.")
 	@NotBlank(message = "Firstname cannot be empty")
@@ -43,12 +36,10 @@ public class  Admindto{
 	@Size(min = 2, message = "Designation cannot be less than 2 characters.")
 	private String designation;
 	
-	@Lob
 	@NotBlank(message = "Education details cannot be empty")
 	@Size(min=10,message = "Education details cannot be less than 10 characters")
 	private String education;
 	
-	@Lob
 	@NotBlank(message = "Work experience details cannot be empty")
 	@Size(min=10,message = "work experience details cannot be less than 10 characters")
 	private String work_experience;
@@ -60,7 +51,7 @@ public class  Admindto{
 	
 	@Override
 	public String toString() {
-		return "Adminupdate [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", phonenumber="
+		return "Adminupdate [firstName=" + firstName + ", lastName=" + lastName + ", phonenumber="
 				+ phonenumber + ", email=" + email + ", adminId=" + adminId +", designation=" + designation
 				+ ", education=" + education + ", work_experience=" + work_experience + "]";
 	}
@@ -85,15 +76,6 @@ public class  Admindto{
 		this.designation = designation;
 		this.education = education;
 		this.work_experience = work_experience;
-	}
-
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public String getFirstName() {

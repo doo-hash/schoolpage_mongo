@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.mockpage.schoolwebapp.schoolpage.home.SchoolpageMongoApplication;
 import com.mockpage.schoolwebapp.schoolpage.home.model.Admin;
 import com.mockpage.schoolwebapp.schoolpage.home.model.Admindto;
 import com.mockpage.schoolwebapp.schoolpage.home.model.GuestUser;
@@ -96,23 +99,19 @@ public class LoginController{
 			@Valid @RequestParam String username, 
 			@Valid @RequestParam String password) {
 		
-		User user = (User) userservice.loadUserByUsername(username);
-		Collection<GrantedAuthority> authorities = user.getAuthorities();
-		
-		for (GrantedAuthority grantedAuthority : authorities) {
-			if(grantedAuthority.getAuthority().equals("ADMIN")) {
-				return "redirect:/home/admin/portal";
-			}
-			else if(grantedAuthority.getAuthority().equals("PARENT")) {
-				return "redirect:/home/parent/portal";
-			}
-			else if(grantedAuthority.getAuthority().equals("TEACHER")) {
-				return "redirect:/home/teacher/portal";
-			}
-			else if(grantedAuthority.getAuthority().equals("USER")) {
-				return "redirect:/home/user/portal";
-			}
-		}
+		  User user = (User) userservice.loadUserByUsername(username);
+		  Collection<GrantedAuthority> authorities = user.getAuthorities();
+		  
+		  for (GrantedAuthority grantedAuthority : authorities) {
+		  if(grantedAuthority.getAuthority().equals("ADMIN")) { return
+		  "redirect:/home/admin/portal"; } else
+		  if(grantedAuthority.getAuthority().equals("PARENT")) { return
+		  "redirect:/home/parent/portal"; } else
+		  if(grantedAuthority.getAuthority().equals("TEACHER")) { return
+		  "redirect:/home/teacher/portal"; } else
+		  if(grantedAuthority.getAuthority().equals("USER")) { return
+		  "redirect:/home/user/portal"; } }
+		 
 		return "redirect:/home";
 	}
 	
@@ -123,19 +122,27 @@ public class LoginController{
 		SchoolUser admin = userservice.findUserByUserId(userid); 
 		SchoolUser adminbyemail = userservice.findUserByEmail(userid);
 		
-		List<Teacher> teachers = teacherservice.findAll();
-		List<Student> students = studentservice.findAll();
-		int count = 0;
-		if(admin != null) {
+		List<Teacher> teachers = null;
+		List<Student> students = null;
+		int count = 0,stdcount = 0;
+		if(teacherservice.findAll() != null) {
+			teachers = teacherservice.findAll();
 			count = teacherservice.usercount();
-			model.addAttribute("studentcount", studentservice.usercount());
+		}
+		if(studentservice.findAll()  != null) {
+			students = studentservice.findAll();
+			stdcount = studentservice.usercount();
+		}
+		if(admin != null) {
+			
+			model.addAttribute("studentcount", stdcount);
 			model.addAttribute("teachercount",count);
 			model.addAttribute("teachers",teachers);
 			model.addAttribute("students",students);
 			model.addAttribute("admin",admin);
 		}
 		if(adminbyemail != null) {
-			model.addAttribute("studentcount", studentservice.usercount());
+			model.addAttribute("studentcount", stdcount);
 			model.addAttribute("teachercount",count);
 			model.addAttribute("teachers",teachers);
 			model.addAttribute("students",students);
@@ -163,8 +170,12 @@ public class LoginController{
 		String userid = authentication.getName();
 		SchoolUser teacher = userservice.findUserByUserId(userid); 
 		SchoolUser teacherbyemail = userservice.findUserByEmail(userid);
-		List<Student> students= studentservice.findAll();
-		int count = studentservice.usercount();
+		List<Student> students= null;
+		int count = 0;
+		if(studentservice.findAll() != null) {
+			students= studentservice.findAll();
+			count = studentservice.usercount();
+		}
 		if(teacher != null) {
 			model.addAttribute("students",students);
 			model.addAttribute("studentcount",count);
@@ -239,7 +250,7 @@ public class LoginController{
 			if(admin != null) {
 				admin.setInactive(true);
 				admin.setDelete(true);
-				adminservice.save(admin);
+				adminservice.update(admin);
 //				adminservice.deleteAdmin(userid);
 			}
 		}
@@ -252,7 +263,7 @@ public class LoginController{
 			if(adminbyemail != null) {
 				adminbyemail.setDelete(true);
 				adminbyemail.setInactive(true);
-				adminservice.save(adminbyemail);
+				adminservice.update(adminbyemail);
 //				adminservice.deleteAdmin(userid);
 			}
 		}
@@ -276,7 +287,7 @@ public class LoginController{
 			if(parent != null) {
 				parent.setDelete(true);
 				parent.setInactive(true);
-				parentservice.save(parent);
+				parentservice.update(parent);
 //				parentservice.deleteParent(userid);
 			}
 		}
@@ -289,7 +300,7 @@ public class LoginController{
 			if(parentbyemail != null) {
 				parentbyemail.setDelete(true);
 				parentbyemail.setInactive(true);
-				parentservice.save(parentbyemail);
+				parentservice.update(parentbyemail);
 //				parentservice.deleteParent(userid);
 			}
 		}
@@ -313,7 +324,7 @@ public class LoginController{
 			if(teacher != null) {
 				teacher.setDelete(true);
 				teacher.setInactive(true);
-				teacherservice.save(teacher);
+				teacherservice.update(teacher);
 //				teacherservice.deleteTeacher(userid);
 			}
 		}
@@ -326,7 +337,7 @@ public class LoginController{
 			if(teacherbyemail != null) {
 				teacherbyemail.setDelete(true);
 				teacherbyemail.setInactive(true);
-				teacherservice.save(teacherbyemail);
+				teacherservice.update(teacherbyemail);
 //				teacherservice.deleteTeacher(userid);
 			}
 		}
@@ -350,7 +361,7 @@ public class LoginController{
 			if(guestuser != null) {
 				guestuser.setDelete(true);
 				guestuser.setInactive(true);
-				guestuserservice.save(guestuser);
+				guestuserservice.update(guestuser);
 //				guestuserservice.deleteGuestUser(userid);
 			}
 		}
@@ -364,7 +375,7 @@ public class LoginController{
 			if(guestuserbyemail != null) {
 				guestuserbyemail.setDelete(true);
 				guestuserbyemail.setInactive(true);
-				guestuserservice.save(guestuserbyemail);
+				guestuserservice.update(guestuserbyemail);
 //				guestuserservice.deleteGuestUser(userid);
 			}
 		}
@@ -376,9 +387,12 @@ public class LoginController{
 		String userid = authentication.getName();
 		SchoolUser user = userservice.findUserByUserId(userid); 
 		SchoolUser userbyemail = userservice.findUserByEmail(userid);
-		Admin admin = adminservice.findByAdminId(userid);
-		Admin adminbyemail = adminservice.findByEmail(userid);
-			
+		Admin admin = null;
+		Admin adminbyemail = null;
+			if(adminservice.findAll() != null) {
+				admin = adminservice.findByAdminId(userid);
+				adminbyemail = adminservice.findByAdminId(userid);
+			}
 		if(user != null) {
 			if(admin == null) {
 				model.addAttribute("admin",new Admindto(user.getFirstname(),
@@ -462,7 +476,6 @@ public class LoginController{
 					user.getPassword(),user.getRoles().toString(),
 					adminupdate.getDesignation(),adminupdate.getEducation(),
 					adminupdate.getWork_experience());
-			System.out.println(admin);
 			adminservice.update(admin);
 			return "redirect:/home/admin/edit?success";	
 		}
@@ -474,9 +487,11 @@ public class LoginController{
 		String userid = authentication.getName();
 		SchoolUser user = userservice.findUserByUserId(userid); 
 		SchoolUser userbyemail = userservice.findUserByEmail(userid);
-		Parent parent = parentservice.findByParentId(userid);
-		Parent parentbyemail = parentservice.findByEmail(userid);
-
+		Parent parent = null, parentbyemail = null;
+		if(parentservice.findAll() != null) {
+		parent = parentservice.findByParentId(userid);
+		parentbyemail = parentservice.findByEmail(userid);
+		}
 		if(user != null) {
 			if(parent == null) {
 				model.addAttribute("parent",new Parentdto(user.getFirstname(),
@@ -576,8 +591,6 @@ public class LoginController{
 				String[] f= name.split(" ");
 				String fname = f[0];
 				String lname = f[1];
-				System.out.println(fname);
-				System.out.println(lname);
 				if(student != null) {
 					student.setFirstName(fname);
 					student.setLastName(lname);
@@ -597,9 +610,12 @@ public class LoginController{
 		String userid = authentication.getName();
 		SchoolUser user = userservice.findUserByUserId(userid); 
 		SchoolUser userbyemail = userservice.findUserByEmail(userid);
-		Teacher teacher = teacherservice.findByTeacherId(userid);
-		Teacher teacherbyemail = teacherservice.findByEmail(userid);
-			
+		
+		Teacher teacher = null, teacherbyemail = null;
+		if(teacherservice.findAll() != null) {
+		teacher = teacherservice.findByTeacherId(userid);
+		teacherbyemail = teacherservice.findByEmail(userid);
+		}
 		if(user != null) {
 			if(teacher == null) {
 				model.addAttribute("teacher",new Teacherdto(user.getFirstname(),
@@ -694,9 +710,11 @@ public class LoginController{
 		String userid = authentication.getName();
 		SchoolUser user = userservice.findUserByUserId(userid); 
 		SchoolUser userbyemail = userservice.findUserByEmail(userid);
-		GuestUser guestuser = guestuserservice.findByUserId(userid);
-		GuestUser guestuserbyemail = guestuserservice.findByEmail(userid);
-			
+		GuestUser guestuser = null,guestuserbyemail = null;
+		if(guestuserservice.findAll() != null) {
+		guestuser = guestuserservice.findByUserId(userid);
+		guestuserbyemail = guestuserservice.findByEmail(userid);
+		}	
 		if(user != null) {
 			if(guestuser == null) {
 				model.addAttribute("guestuser",new Userdto(user.getFirstname(),

@@ -2,6 +2,7 @@ package com.mockpage.schoolwebapp.schoolpage.home.service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mockpage.schoolwebapp.schoolpage.home.model.Student;
@@ -10,17 +11,37 @@ import com.mockpage.schoolwebapp.schoolpage.home.repository.StudentRepository;
 @Service
 public class StudentServiceimpl implements IStudentService{
 
+	@Autowired
 	private StudentRepository studentRepo;
+	@Autowired
+	private DbSequenceService seqservice;
 	
-	public StudentServiceimpl(StudentRepository studentRepo) {
+	/*
+	 * public StudentServiceimpl(StudentRepository studentRepo) { super();
+	 * this.studentRepo = studentRepo; }
+	 */
+
+	
+	public StudentServiceimpl() {
 		super();
-		this.studentRepo = studentRepo;
+		// TODO Auto-generated constructor stub
 	}
+
+
+	/*
+	 * public StudentServiceimpl(StudentRepository studentRepo, DbSequenceService
+	 * seqservice) { super(); this.studentRepo = studentRepo; this.seqservice =
+	 * seqservice; }
+	 */
+
 
 	@Override
 	public List<Student> findAll() {
-		List<Student> allstudents = studentRepo.findAll();
-		return allstudents;
+		if(studentRepo != null) {
+			List<Student> allstudents = studentRepo.findAll();
+			return allstudents;
+		}
+		return null;
 	}
 
 	@Override
@@ -38,6 +59,7 @@ public class StudentServiceimpl implements IStudentService{
 	@Override
 	public Student save(Student student) {
 		if(student != null) {
+			student.setId(seqservice.getnextseq(Student.SEQ_KEY));
 			studentRepo.save(student);
 		}
 		return student;
@@ -45,6 +67,7 @@ public class StudentServiceimpl implements IStudentService{
 
 	@Override
 	public boolean existsByStudentId(String studentId) {
+		
 		boolean isstudentid = studentRepo.existsByStudentId(studentId);
 		return isstudentid;
 	}

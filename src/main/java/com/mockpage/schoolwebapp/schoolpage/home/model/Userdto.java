@@ -1,22 +1,12 @@
 package com.mockpage.schoolwebapp.schoolpage.home.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-@Entity
 public class  Userdto{
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
 	
 	@Pattern(regexp = "^[a-zA-Z\s]{2,40}",message="Must contain only letters.")
 	@NotBlank(message = "Firstname cannot be empty")
@@ -45,12 +35,10 @@ public class  Userdto{
 	@Size(min = 2, message = "Profession cannot be less than 2 characters.")
 	private String profession;
 	
-	@Lob
 	@NotBlank(message = "Education details cannot be empty")
 	@Size(min=10,message = "Education details cannot be less than 10 characters")
 	private String education;
 	
-	@Lob
 	private String description;
 
 	public Userdto() {
@@ -80,18 +68,9 @@ public class  Userdto{
 
 	@Override
 	public String toString() {
-		return "Userdto [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", phonenumber="
+		return "Userdto [firstName=" + firstName + ", lastName=" + lastName + ", phonenumber="
 				+ phonenumber + ", email=" + email + ", userId=" + userId + ", profession=" + profession
 				+ ", education=" + education + ", description=" + description + "]";
-	}
-
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public String getFirstName() {

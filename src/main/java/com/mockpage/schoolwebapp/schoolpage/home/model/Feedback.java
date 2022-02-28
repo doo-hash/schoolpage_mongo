@@ -1,20 +1,21 @@
 package com.mockpage.schoolwebapp.schoolpage.home.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
-@Entity
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "feedback")
 public class Feedback {
 
+	@Transient
+	public static final String SEQ_KEY = "fdbk_seq";
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private long id;
 	@NotBlank(message = "Name cannot be empty")
 	@Size(min=2, message = "Name must be more than 2 characters")
 	private String name;
@@ -26,8 +27,12 @@ public class Feedback {
 	@NotBlank(message = "feedback cannot be empty")
 	private String feedback_message;
 
-	public Long getId() {
+	public long getId() {
 		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
 	}
 
 	public String getName() {
