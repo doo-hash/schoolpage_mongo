@@ -18,7 +18,7 @@ public class  Admin{
 	@Id
 	private long id;
 	
-	@Pattern(regexp = "^[a-zA-Z\s]{2,40}",message="Must contain only letters.")
+	@Pattern(regexp = "^[a-zA-Z ]{2,40}",message="Must contain only letters.")
 	@NotBlank(message = "Firstname cannot be empty")
 	@Size(min=2, message = "Firstname must be more than 2 characters.")
 	private String firstName;
